@@ -201,22 +201,31 @@ This section relates to the step 9 of the sequence diagram.
 
 In order to intiate the Sign session, you will forge a POST request towards this endpoint: BASE_URL/qes-partners/1.0.0/sign_document. Please note we are using SSLMA as authentication method, combined with IP filtering, as specified in [SSLMA Authentication](#SSLMA). Please note the same endpoint is used for starting the sign session and for requesting the status of this session (also see 'requesting the session status').
 
-Below you will find the mandatory and optional parameters to integrate in the HTTPS POST request body formatted as application/json:
+Below you will find the mandatory and optional parameters to integrate in the HTTPS POST request body formatted as application/json (with the example below matching a case where you need to sign several documents at once):
 
 <code style=display:block;white-space:pre-wrap>POST /BASE_URL/qes-partners/1.0.0/sign_document HTTP/1.1
 {
 	"inDocs": {
-		"docHash":[
-			{
-				"di":[
-					{
-						"alg":"http://www.w3.org/2001/04/xmlenc#sha256",
-						"value":"f4OxZX/x/FO5LcGBSKHWXfwtSx+j1ncoSt3SABJtkGk="
-					}
-				],
-				"id":"ContractCar20180914u89236456.pdf"
-			}
-		]
+		"docHash": [
+      {
+        "di": [
+                  {
+                      "alg": "http://www.w3.org/2001/04/xmlenc#sha256",
+                      "value": "f4OxZX/x/FO5LcGBSKHWXfwtSx+j1ncoSt3SABJtkGk="
+                  }
+              ],
+              "id": "doc1"
+          },
+          {
+              "di": [
+                  {
+                      "alg": "http://www.w3.org/2001/04/xmlenc#sha256",
+                      "value": "f4OxZX/x/FO5LcGBSKHWXfwtSx+j1ncoSt3SABJtkGk="
+                  }
+              ],
+              "id": "doc2"
+          }
+        ]
 	},
 	"reqID": "ReqID4va0acsef3mv5ft1dp71",
 	"asyncRespID": null,
@@ -290,7 +299,7 @@ Parameter | Type | Required | Description
 **userCode** | String | Required | The identifier for the User as returned in 3.6
 **partnerCode** | String | Required | This MUST be the client identifier you received when registering your application during the [onboarding process](#Onboarding). This parameter will be translated to a label describing the customer for which the User is signing the document. 
 **serviceCode** | String | Required | It MUST contain the value of the serviceCode defined for your application during the [onboarding process](#Onboarding).
-**description** | Array | Optional | Is a text you provide as the description of the document. The maximum length is 50 characters. It will be displayed in the itsme App. You MUST provide a value for each language supported by itsme ('en', 'fr', 'nl' and 'de'). Please see [Supported character set](#characterEncoding) for encoding concerns.
+**description** | Array | DEPRECATED | This field is no longer used.
 **redirectUrl** | String | Required | This is the URL to which the User will be redirected to your remote SCA. This MUST exactly match the redirect URL of the specified service defined when registering your application during the [onboarding process](#Onboarding).
 **signPolicy** |  | Optional | This is the object of the Signature policy to be used during the Signature. This parameter contains all the information related to the signature policy. 
 **signPolicyRef** | String | Required | This defines the reference of the signature policy to be used during itsme® Signing flow. In case no specific signature policy is applicable for that specific use case, the itsme® generic qualified signature policy SHOULD be used. The signature policy has to be indicated in the SCA Front-End to the User. The list of available codes can be retrieved from the [JSON document](#OpenIDQES).<br>The signature policies used SHOULD be defined during the [onboarding process](#Onboarding). It is up to you to choose your signature policies within the list given by itsme®. If you want to add new signature policies to your list, please ask the itsme® Onboarding team.</br>
@@ -313,7 +322,7 @@ The response body will include the following values:
         "maj": "urn:oasis:names:tc:dss:1.0:profiles:asynchronousprocessing:resultmajor:Pending"
     },
     "reqID": "ReqID4va0acsef3mv5ft1dp71",
-    "asyncRespID": "hjg3ngu3tvvv71k9qg1vyokc2mwmqgqk43iv",
+    "asyncRespID": "b99a7d03acb94ea5a4d972aa31bb1c36",
     "optOutp": {
         "itsme": {
             "signingUrl": "https://uatmerchant.itsme.be/qes/prove_its_you_poka?q=34u5jh2dltb1xhsu0g4bshnlziycdhow&language=FR",
@@ -387,19 +396,25 @@ This section relates to the step 14 of the sequence diagram.
 
 <code style=display:block;white-space:pre-wrap> HTTP200 
 {
-  "result": {
-    "maj": "urn:oasis:names:tc:dss:1.0:resultmajor:Success"
-  },
-  "reqID": "ReqID4va0acsef3mv5ft1dp71",
-  "respID": "gl1bb6g0bykali5yl46civwh615qtn5ek28m",
-  "sigObj": [
-    {
-      "b64Sig": {
-        "value": "pekb3BX5tyWPn07qq/DIZI3W3qjyXrq2sZcIKpMAV0lGhcP0AzSXVkadlPwcmkOHJBFuCm0C1U6Bc8VrNCZnP6E260DShiasEAoV7ZmFhB4k7om/nXEsBTLPUJTWV9FUk1XyfuAnnbNvvmX7lAvmDyVPELO840ODUX7q8a43NES0ZFpPzbNd7HhqCRHf8UKKLFop7FwTPngc7LarTP6j0iX8PSNaoc/F2pi0Z62qN67UPy/zHmc1/5w718qygy6BSPLXS2csm+OcscN8Bg1JnJOgRLpxFelPpGxYSj/uOojfSXkF/0Kj9n2xlNLZnM+EPIwZCoTjA/4dBPvw5vdD0g=="
-      },
-      "whichDoc": "myDoc"
-    }
-  ]
+    "result": {
+        "maj": "urn:oasis:names:tc:dss:1.0:resultmajor:Success"
+    },
+    "reqID": "ReqID4va0acsef3mv5ft1dp987",
+    "respID": "b99a7d03acb94ea5a4d972aa31bb1c36",
+    "sigObj": [
+        {
+            "b64Sig": {
+                "value": "J3hfeMCuUAOOegPBG+OOgAAGErePcKAh8XF8k9oo5FFD8MGshblI+Ypj4FDxHjfKD5tlE95no+edIKaefLDWxZDSPGrLonyMS8nfdegKJy3uP2NC0fjO9n67RewZwP4ocb70cc9UDJ9QKDHTpgUhUJrKiKV2OzlJ5NyNypeKe07/CqWLvilpv1i5c2F8IaPktCGmhEz7aRaYAc7Oh5pm9u9HnGtpEXKWQIKJ0Va2dd3XeM/JIq1DAh6rQlM71WeK/E8lMpNGt8dZjJSvoRGkrZoSD7fu3LOP/xF0vIMWgbjemZNnI2sMpTHaajnN2RLboiX9gpwFLTnBgE8XGyRFEQ=="
+            },
+            "whichDoc": "doc1"
+        },
+        {
+            "b64Sig": {
+                "value": "J3hfeMCuUAOOegPBG+OOgAAGErePcKAh8XF8k9oo5FFD8MGshblI+Ypj4FDxHjfKD5tlE95no+edIKaefLDWxZDSPGrLonyMS8nfdegKJy3uP2NC0fjO9n67RewZwP4ocb70cc9UDJ9QKDHTpgUhUJrKiKV2OzlJ5NyNypeKe07/CqWLvilpv1i5c2F8IaPktCGmhEz7aRaYAc7Oh5pm9u9HnGtpEXKWQIKJ0Va2dd3XeM/JIq1DAh6rQlM71WeK/E8lMpNGt8dZjJSvoRGkrZoSD7fu3LOP/xF0vIMWgbjemZNnI2sMpTHaajnN2RLboiX9gpwFLTnBgE8XGyRFEQ=="
+            },
+            "whichDoc": "doc2"
+        }
+    ]
 }
 
 </code>
